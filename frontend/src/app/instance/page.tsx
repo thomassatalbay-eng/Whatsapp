@@ -34,8 +34,8 @@ export default function InstancePage() {
     try {
       await fetchApi("/instance/connect", { method: "POST" });
       await pollStatus();
-    } catch (e) {
-      alert("Failed to trigger connection");
+    } catch (e: any) {
+      alert(`Failed to trigger connection: ${e.message || 'Network error'}`);
     } finally {
       setLoading(false);
     }
