@@ -1,14 +1,21 @@
-import pkg from 'whatsapp-web.js';
-const { Client, LocalAuth } = pkg;
+import makeWASocket, {
+    useMultiFileAuthState,
+    DisconnectReason,
+    fetchLatestBaileysVersion,
+    makeCacheableSignalKeyStore
+} from '@whiskeysockets/baileys';
+import pino from 'pino';
 import qrcode from 'qrcode';
 import fs from 'fs';
 import { getConfig, getMessages, saveMessage } from './config.js';
 import { getAIReply } from './ai.js';
 
-let client: any = null;
+let sock: any = null;
 let currentQR: string | null = null;
 let instanceStatus: 'DISCONNECTED' | 'CONNECTING' | 'CONNECTED' = 'DISCONNECTED';
 let isInitializing = false;
+
+const logger = (pino as any)({ level: 'silent' });
 
 export const getInstanceStatus = () => ({
     status: instanceStatus,
@@ -16,164 +23,167 @@ export const getInstanceStatus = () => ({
 });
 
 export const startWhatsApp = async (): Promise<void> => {
-    if (client || isInitializing) return;
+    if (sock || isInitializing) return;
     isInitializing = true;
     instanceStatus = 'CONNECTING';
 
-    console.log('[WhatsApp Lite] Starting single WhatsApp instance...');
-
-    const executablePath = process.platform === 'win32'
-        ? (fs.existsSync('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe') ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : undefined)
-        : (fs.existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : (process.env.PUPPETEER_EXECUTABLE_PATH || undefined));
-
-    client = new Client({
-        authStrategy: new LocalAuth({ dataPath: './.wwebjs_auth' }),
-        webVersionCache: {
-            type: 'remote',
-            remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1014113593-alpha.html',
-        },
-        puppeteer: {
-            headless: true,
-            executablePath,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-accelerated-2d-canvas',
-                '--no-first-run',
-                '--no-zygote',
-                '--disable-gpu',
-                '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
-            ]
-        }
-    });
-
-    client.on('qr', async (qrStr: string) => {
-        console.log('[WhatsApp Lite] 📱 QR Code generated');
-        try {
-            currentQR = await qrcode.toDataURL(qrStr);
-        } catch {
-            currentQR = null;
-        }
-    });
-
-    client.on('ready', () => {
-        console.log('[WhatsApp Lite] ✅ WhatsApp is ready and connected!');
-        instanceStatus = 'CONNECTED';
-        currentQR = null;
-    });
-
-    client.on('disconnected', (reason: string) => {
-        console.log('[WhatsApp Lite] ⛔ Disconnected:', reason);
-        instanceStatus = 'DISCONNECTED';
-        currentQR = null;
-        client = null;
-
-        if (reason === 'NAVIGATION' || reason === 'LOGOUT') {
-            const sessionPath = './.wwebjs_auth';
-            setTimeout(() => {
-                if (fs.existsSync(sessionPath)) {
-                    try {
-                        fs.rmSync(sessionPath, { recursive: true, force: true, maxRetries: 5, retryDelay: 1000 });
-                    } catch { /* ignore non-fatal lock */ }
-                }
-            }, 1500);
-        }
-    });
-
-    client.on('message', async (msg: any) => {
-        if (msg.isStatus || msg.from.includes('@g.us')) return;
-
-        const phone = msg.from;
-        const text = msg.body;
-        if (!text) return;
-
-        // Save incoming message
-        saveMessage({
-            phone,
-            content: text,
-            isFromMe: false,
-            status: 'RECEIVED'
-        });
-
-        const config = getConfig();
-
-        if (config.autoReplyEnabled && config.groqApiKey) {
-            console.log(`🤖 AI processing message from ${phone}...`);
-
-            const history = getMessages()
-                .filter(m => m.phone === phone)
-                .slice(-10);
-
-            const min = config.minDelay || 2;
-            const max = config.maxDelay || 5;
-            const randomDelay = Math.floor(Math.random() * (max - min + 1) + min) * 1000;
-
-            try {
-                const [reply] = await Promise.all([
-                    getAIReply(text, config.systemPrompt, config.groqApiKey, history),
-                    new Promise(res => setTimeout(res, randomDelay))
-                ]);
-
-                // Direct reply to message
-                await msg.reply(reply);
-
-                saveMessage({
-                    phone,
-                    content: reply,
-                    isFromMe: true,
-                    status: 'SENT'
-                });
-            } catch (err: any) {
-                console.error('[WhatsApp Lite] AI auto-reply error:', err.message);
-                saveMessage({
-                    phone,
-                    content: '[AI Generation Failed]',
-                    isFromMe: true,
-                    status: 'FAILED',
-                    error: err.message || String(err)
-                });
-            }
-        }
-    });
+    console.log('[WhatsApp Lite] Starting instant Baileys WhatsApp engine...');
 
     try {
-        await client.initialize();
+        const { state, saveCreds } = await useMultiFileAuthState('./.baileys_auth');
+        const { version } = await fetchLatestBaileysVersion();
+
+        sock = (makeWASocket as any).default({
+            version,
+            logger,
+            printQRInTerminal: false,
+            auth: {
+                creds: state.creds,
+                keys: makeCacheableSignalKeyStore(state.keys, logger),
+            },
+            generateHighQualityLinkPreview: true,
+        });
+
+        sock.ev.on('creds.update', saveCreds);
+
+        sock.ev.on('connection.update', async (update: any) => {
+            const { connection, lastDisconnect, qr } = update;
+
+            if (qr) {
+                console.log('[WhatsApp Lite] 📱 Instant QR Code generated!');
+                try {
+                    currentQR = await qrcode.toDataURL(qr);
+                } catch {
+                    currentQR = null;
+                }
+            }
+
+            if (connection === 'open') {
+                console.log('[WhatsApp Lite] ✅ WhatsApp Connected!');
+                instanceStatus = 'CONNECTED';
+                currentQR = null;
+            }
+
+            if (connection === 'close') {
+                const statusCode = (lastDisconnect?.error as any)?.output?.statusCode;
+                const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+
+                console.log('[WhatsApp Lite] Connection closed, statusCode:', statusCode);
+
+                sock = null;
+                currentQR = null;
+
+                if (shouldReconnect) {
+                    instanceStatus = 'CONNECTING';
+                    setTimeout(() => startWhatsApp(), 3000);
+                } else {
+                    instanceStatus = 'DISCONNECTED';
+                    if (fs.existsSync('./.baileys_auth')) {
+                        try {
+                            fs.rmSync('./.baileys_auth', { recursive: true, force: true });
+                        } catch {}
+                    }
+                }
+            }
+        });
+
+        sock.ev.on('messages.upsert', async (m: any) => {
+            if (m.type !== 'notify') return;
+
+            for (const msg of m.messages) {
+                if (msg.key.fromMe || !msg.message) continue;
+
+                const remoteJid = msg.key.remoteJid;
+                if (!remoteJid || remoteJid.endsWith('@g.us') || remoteJid.endsWith('@broadcast')) continue;
+
+                const text = msg.message.conversation ||
+                             msg.message.extendedTextMessage?.text ||
+                             msg.message.imageMessage?.caption || '';
+
+                if (!text.trim()) continue;
+
+                // Save incoming message
+                saveMessage({
+                    phone: remoteJid,
+                    content: text,
+                    isFromMe: false,
+                    status: 'RECEIVED'
+                });
+
+                const config = getConfig();
+
+                if (config.autoReplyEnabled && config.groqApiKey) {
+                    console.log(`🤖 AI processing message from ${remoteJid}...`);
+
+                    const history = getMessages()
+                        .filter(m => m.phone === remoteJid)
+                        .slice(-10);
+
+                    const min = config.minDelay || 2;
+                    const max = config.maxDelay || 5;
+                    const randomDelay = Math.floor(Math.random() * (max - min + 1) + min) * 1000;
+
+                    try {
+                        const [reply] = await Promise.all([
+                            getAIReply(text, config.systemPrompt, config.groqApiKey, history),
+                            new Promise(res => setTimeout(res, randomDelay))
+                        ]);
+
+                        await sock.sendMessage(remoteJid, { text: reply });
+
+                        saveMessage({
+                            phone: remoteJid,
+                            content: reply,
+                            isFromMe: true,
+                            status: 'SENT'
+                        });
+                    } catch (err: any) {
+                        console.error('[WhatsApp Lite] AI auto-reply error:', err.message);
+                        saveMessage({
+                            phone: remoteJid,
+                            content: '[AI Generation Failed]',
+                            isFromMe: true,
+                            status: 'FAILED',
+                            error: err.message || String(err)
+                        });
+                    }
+                }
+            }
+        });
+
     } catch (err) {
-        console.error('[WhatsApp Lite] Initialization error:', err);
+        console.error('[WhatsApp Lite] Baileys startup error:', err);
         instanceStatus = 'DISCONNECTED';
-        client = null;
+        sock = null;
     } finally {
         isInitializing = false;
     }
 };
 
 export const logoutWhatsApp = async (): Promise<void> => {
-    if (client) {
-        try { await client.logout(); } catch {}
-        try { await client.destroy(); } catch {}
-        client = null;
+    if (sock) {
+        try { await sock.logout(); } catch {}
+        try { sock.end(undefined); } catch {}
+        sock = null;
     }
     instanceStatus = 'DISCONNECTED';
     currentQR = null;
 
-    const sessionPath = './.wwebjs_auth';
-    setTimeout(() => {
-        if (fs.existsSync(sessionPath)) {
-            try {
-                fs.rmSync(sessionPath, { recursive: true, force: true, maxRetries: 5, retryDelay: 1000 });
-            } catch {}
-        }
-    }, 1500);
+    if (fs.existsSync('./.baileys_auth')) {
+        try {
+            fs.rmSync('./.baileys_auth', { recursive: true, force: true });
+        } catch {}
+    }
 };
 
 export const sendMessage = async (phone: string, text: string) => {
-    if (!client || instanceStatus !== 'CONNECTED') {
+    if (!sock || instanceStatus !== 'CONNECTED') {
         throw new Error('WhatsApp is not connected');
     }
-    await client.sendMessage(phone, text);
+    const formattedPhone = phone.includes('@') ? phone : `${phone}@s.whatsapp.net`;
+    await sock.sendMessage(formattedPhone, { text });
     saveMessage({
-        phone,
+        phone: formattedPhone,
         content: text,
         isFromMe: true,
         status: 'SENT'
