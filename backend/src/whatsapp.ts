@@ -23,11 +23,15 @@ export const startWhatsApp = async (): Promise<void> => {
     console.log('[WhatsApp Lite] Starting single WhatsApp instance...');
 
     const executablePath = process.platform === 'win32'
-        ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
-        : undefined;
+        ? (fs.existsSync('C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe') ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : undefined)
+        : (fs.existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : (process.env.PUPPETEER_EXECUTABLE_PATH || undefined));
 
     client = new Client({
         authStrategy: new LocalAuth({ dataPath: './.wwebjs_auth' }),
+        webVersionCache: {
+            type: 'remote',
+            remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1014113593-alpha.html',
+        },
         puppeteer: {
             headless: true,
             executablePath,
@@ -38,7 +42,8 @@ export const startWhatsApp = async (): Promise<void> => {
                 '--disable-accelerated-2d-canvas',
                 '--no-first-run',
                 '--no-zygote',
-                '--disable-gpu'
+                '--disable-gpu',
+                '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
             ]
         }
     });
