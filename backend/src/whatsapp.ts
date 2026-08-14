@@ -33,7 +33,9 @@ export const startWhatsApp = async (): Promise<void> => {
         const { state, saveCreds } = await useMultiFileAuthState('./.baileys_auth');
         const { version } = await fetchLatestBaileysVersion();
 
-        sock = (makeWASocket as any).default({
+        const initWASocket = typeof makeWASocket === 'function' ? makeWASocket : (makeWASocket as any).default;
+
+        sock = initWASocket({
             version,
             logger,
             printQRInTerminal: false,
