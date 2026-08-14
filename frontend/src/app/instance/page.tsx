@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { fetchApi } from "@/lib/api";
-import { Smartphone, QrCode, Power, RefreshCw, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Smartphone, QrCode, Power, RefreshCw, CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
 
 export default function InstancePage() {
   const [status, setStatus] = useState<string>("DISCONNECTED");
@@ -42,14 +42,13 @@ export default function InstancePage() {
   };
 
   const handleDisconnect = async () => {
-    if (!confirm("Are you sure you want to disconnect WhatsApp?")) return;
     setLoading(true);
     try {
       await fetchApi("/instance/disconnect", { method: "POST" });
       setStatus("DISCONNECTED");
       setQrCode(null);
     } catch (e) {
-      alert("Failed to disconnect");
+      alert("Failed to cancel connection");
     } finally {
       setLoading(false);
     }
@@ -100,14 +99,22 @@ export default function InstancePage() {
               >
                 <Power className="w-3.5 h-3.5" /> Disconnect
               </button>
+            ) : isConnecting ? (
+              <button
+                onClick={handleDisconnect}
+                disabled={loading}
+                className="px-4 py-2 rounded-xl bg-amber-600/15 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 font-medium text-xs flex items-center gap-2 transition-all"
+              >
+                <XCircle className="w-3.5 h-3.5" /> Cancel Connection
+              </button>
             ) : (
               <button
                 onClick={handleConnect}
-                disabled={loading || isConnecting}
+                disabled={loading}
                 className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs flex items-center gap-2 shadow-lg shadow-emerald-900/20 transition-all"
               >
                 {loading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <QrCode className="w-3.5 h-3.5" />}
-                {isConnecting ? "Generating QR..." : "Connect WhatsApp"}
+                Connect WhatsApp
               </button>
             )}
           </div>
@@ -137,11 +144,26 @@ export default function InstancePage() {
                   Open WhatsApp on your phone → Linked Devices → Link a Device.
                 </p>
               </div>
+
+              <button
+                onClick={handleDisconnect}
+                disabled={loading}
+                className="mt-2 px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 font-medium text-xs inline-flex items-center gap-1.5 transition-all"
+              >
+                <XCircle className="w-3.5 h-3.5 text-zinc-400" /> Cancel Connection
+              </button>
             </div>
           ) : isConnecting ? (
-            <div className="text-center space-y-3">
+            <div className="text-center space-y-4">
               <div className="w-10 h-10 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
               <p className="text-sm text-zinc-400">Connecting and generating QR code...</p>
+              <button
+                onClick={handleDisconnect}
+                disabled={loading}
+                className="px-4 py-2 rounded-xl bg-amber-600/15 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 font-medium text-xs inline-flex items-center gap-1.5 transition-all"
+              >
+                <XCircle className="w-3.5 h-3.5" /> Cancel Connection
+              </button>
             </div>
           ) : (
             <div className="text-center space-y-4">
