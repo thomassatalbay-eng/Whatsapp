@@ -1,13 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { fetchApi } from "@/lib/api";
-import { Smartphone, QrCode, Power, RefreshCw, CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
+import { fetchApi, getApiBaseUrl } from "@/lib/api";
+import { Smartphone, QrCode, Power, RefreshCw, CheckCircle2, ShieldCheck, XCircle, Globe } from "lucide-react";
 
 export default function InstancePage() {
   const [status, setStatus] = useState<string>("DISCONNECTED");
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [currentUrl, setCurrentUrl] = useState<string>("");
+
+  useEffect(() => {
+    setCurrentUrl(getApiBaseUrl());
+  }, []);
 
   const pollStatus = async () => {
     try {
@@ -29,13 +34,27 @@ export default function InstancePage() {
     return () => clearInterval(interval);
   }, []);
 
+  const handleSetBackendUrl = () => {
+    const input = prompt("Enter your Render Backend URL (e.g. https://anthrix-backend.onrender.com):", currentUrl);
+    if (input && input.trim()) {
+      const clean = input.trim().replace(/\/$/, "");
+      localStorage.setItem("CUSTOM_API_URL", clean);
+      setCurrentUrl(clean);
+      alert(`Backend URL set to: ${clean}`);
+      pollStatus();
+    }
+  };
+
   const handleConnect = async () => {
     setLoading(true);
     try {
       await fetchApi("/instance/connect", { method: "POST" });
       await pollStatus();
     } catch (e: any) {
-      alert(`Failed to trigger connection: ${e.message || 'Network error'}`);
+      const ask = confirm(`Could not reach backend at ${getApiBaseUrl()}.\n\nWould you like to enter your live Render backend URL?`);
+      if (ask) {
+        handleSetBackendUrl();
+      }
     } finally {
       setLoading(false);
     }
@@ -60,13 +79,22 @@ export default function InstancePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
-          <Smartphone className="w-8 h-8 text-emerald-400" /> WhatsApp Channel
-        </h1>
-        <p className="text-zinc-400 mt-1 text-sm">
-          Connect your WhatsApp account by scanning the QR code below.
-        </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+            <Smartphone className="w-8 h-8 text-emerald-400" /> WhatsApp Channel
+          </h1>
+          <p className="text-zinc-400 mt-1 text-sm">
+            Connect your WhatsApp account by scanning the QR code below.
+          </p>
+        </div>
+
+        <button
+          onClick={handleSetBackendUrl}
+          className="px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white text-xs flex items-center gap-2 transition-all"
+        >
+          <Globe className="w-3.5 h-3.5 text-blue-400" /> Change Backend URL
+        </button>
       </div>
 
       {/* Main Instance Card */}
