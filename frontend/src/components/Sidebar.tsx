@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Smartphone, MessageSquare, Settings, ShieldCheck, LogOut, Cross, Key } from "lucide-react";
+import { LayoutDashboard, Smartphone, MessageSquare, Settings, ShieldCheck, LogOut } from "lucide-react";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -24,12 +24,12 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-slate-950 border-r border-slate-800 flex flex-col justify-between shrink-0 h-screen sticky top-0">
+    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 h-screen sticky top-0 shadow-sm">
       <div>
         {/* Brand Header */}
-        <div className="p-5 border-b border-slate-800 bg-gradient-to-b from-slate-900 to-slate-950">
+        <div className="p-5 border-b border-slate-200 bg-slate-50">
           <div className="flex items-center gap-3">
-            <div className="relative w-11 h-11 rounded-xl bg-white p-1 shadow-md shadow-red-950/30 border-2 border-red-600 overflow-hidden shrink-0 flex items-center justify-center">
+            <div className="relative w-11 h-11 rounded-xl bg-white p-1 border-2 border-red-600 shrink-0 flex items-center justify-center shadow-sm">
               <Image
                 src="/amc-logo.jpg"
                 alt="Afzal Medical Complex Logo"
@@ -39,9 +39,9 @@ export function Sidebar() {
               />
             </div>
             <div>
-              <h1 className="font-extrabold text-sm text-white leading-tight tracking-tight">Afzal Medical</h1>
-              <h2 className="font-bold text-xs text-red-500 leading-none">Complex & Trust</h2>
-              <span className="inline-block mt-1 text-[9px] font-bold text-blue-400 tracking-wider uppercase px-1.5 py-0.5 rounded bg-blue-950/80 border border-blue-800/50">
+              <h1 className="font-black text-sm text-slate-900 leading-tight">Afzal Medical</h1>
+              <h2 className="font-bold text-xs text-red-600 leading-none">Complex & Trust</h2>
+              <span className="inline-block mt-1 text-[9px] font-bold text-white tracking-wider uppercase px-1.5 py-0.5 rounded bg-blue-600">
                 D.I. Khan • AI Suite
               </span>
             </div>
@@ -57,13 +57,13 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
                   isActive
-                    ? "bg-gradient-to-r from-red-600/20 to-blue-600/20 text-white border border-red-500/40 font-bold shadow-lg shadow-red-950/20"
-                    : "text-slate-400 hover:text-white hover:bg-slate-900/80"
+                    ? "bg-red-600 text-white shadow-sm"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? "text-red-500" : "text-slate-400"}`} />
+                <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-slate-500"}`} />
                 {item.name}
               </Link>
             );
@@ -72,16 +72,16 @@ export function Sidebar() {
       </div>
 
       {/* Footer & Logout */}
-      <div className="p-4 border-t border-slate-800 bg-slate-900/60 space-y-3">
-        <div className="flex items-center gap-2 text-xs text-emerald-400 font-semibold">
-          <ShieldCheck className="w-4 h-4 text-blue-400" /> Patient Care Engine Active
+      <div className="p-4 border-t border-slate-200 bg-slate-50 space-y-3">
+        <div className="flex items-center gap-2 text-xs text-blue-700 font-bold">
+          <ShieldCheck className="w-4 h-4 text-blue-600" /> Patient Care Engine Active
         </div>
 
         <button
           onClick={handleLogout}
-          className="w-full px-3 py-2.5 rounded-xl bg-slate-900 hover:bg-red-600/15 text-slate-300 hover:text-red-400 border border-slate-800 hover:border-red-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
+          className="w-full px-3 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm"
         >
-          <LogOut className="w-4 h-4 text-red-500" /> Sign Out
+          <LogOut className="w-4 h-4" /> Sign Out
         </button>
       </div>
     </aside>

@@ -52,19 +52,19 @@ export default function ApiKeyPage() {
     <div className="max-w-2xl mx-auto space-y-8 pt-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
-          <Key className="w-8 h-8 text-amber-400" /> LLM API Key Configuration
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+          <Key className="w-8 h-8 text-amber-500" /> LLM API Key Configuration
         </h1>
-        <p className="text-zinc-400 mt-1 text-sm">
+        <p className="text-slate-600 mt-1 text-sm font-semibold">
           Configure Primary & Backup API Keys for 100% failover uptime.
         </p>
       </div>
 
-      {/* Form Card */}
-      <form onSubmit={handleSubmit} className="p-8 rounded-3xl bg-zinc-900 border border-zinc-800 space-y-6 shadow-2xl">
+      {/* Form Card - White Theme */}
+      <form onSubmit={handleSubmit} className="p-8 rounded-3xl bg-white border border-slate-200 space-y-6 shadow-sm">
         {/* Primary API Key */}
         <div className="space-y-3">
-          <label className="block text-xs font-semibold uppercase text-zinc-400 tracking-wider">
+          <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
             Primary API Key
           </label>
 
@@ -74,13 +74,13 @@ export default function ApiKeyPage() {
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="Enter Primary API Key..."
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-4 pr-12 py-3.5 text-sm text-white font-mono focus:outline-none focus:border-blue-500 transition-all"
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-4 pr-12 py-3.5 text-sm text-slate-900 font-mono focus:outline-none focus:border-red-600 focus:bg-white transition-all"
               required
             />
             <button
               type="button"
               onClick={() => setShowKey(!showKey)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
             >
               {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -90,10 +90,10 @@ export default function ApiKeyPage() {
         {/* Backup API Key */}
         <div className="space-y-3 pt-2">
           <div className="flex justify-between items-center">
-            <label className="block text-xs font-semibold uppercase text-zinc-400 tracking-wider">
+            <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
               Backup API Key (Optional Failover)
             </label>
-            <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
+            <span className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" /> Auto-Failover Enabled
             </span>
           </div>
@@ -104,33 +104,33 @@ export default function ApiKeyPage() {
               value={backupApiKey}
               onChange={(e) => setBackupApiKey(e.target.value)}
               placeholder="Enter Backup API Key (Optional)..."
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-4 pr-12 py-3.5 text-sm text-white font-mono focus:outline-none focus:border-blue-500 transition-all"
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-4 pr-12 py-3.5 text-sm text-slate-900 font-mono focus:outline-none focus:border-red-600 focus:bg-white transition-all"
             />
             <button
               type="button"
               onClick={() => setShowBackupKey(!showBackupKey)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
             >
               {showBackupKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
 
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-slate-500 font-semibold">
             If Primary API Key reaches daily limits, the system will automatically switch to the Backup Key without dropping messages!
           </p>
         </div>
 
         {/* Action Button */}
-        <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
-          <div className="text-xs text-zinc-500 flex items-center gap-1.5">
-            <Shield className="w-4 h-4 text-emerald-400" />
+        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+          <div className="text-xs text-slate-600 font-semibold flex items-center gap-1.5">
+            <Shield className="w-4 h-4 text-emerald-600" />
             Encrypted Storage
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-blue-900/20 transition-all"
+            className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-sm transition-all"
           >
             {saved ? (
               <>

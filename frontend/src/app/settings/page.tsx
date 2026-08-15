@@ -55,22 +55,22 @@ export default function SettingsPage() {
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
-          <Settings className="w-8 h-8 text-blue-400" /> AI Settings
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+          <Settings className="w-8 h-8 text-blue-600" /> AI Hospital Settings
         </h1>
-        <p className="text-zinc-400 mt-1 text-sm">
-          Configure your AI System Prompt and response delays.
+        <p className="text-slate-600 mt-1 text-sm font-semibold">
+          Configure your AI System Prompt knowledge base and response delays.
         </p>
       </div>
 
-      {/* Form Card */}
-      <form onSubmit={handleSubmit} className="p-8 rounded-3xl bg-zinc-900 border border-zinc-800 space-y-6 shadow-2xl">
+      {/* Form Card - White Theme */}
+      <form onSubmit={handleSubmit} className="p-8 rounded-3xl bg-white border border-slate-200 space-y-6 shadow-sm">
         {/* Toggle Auto-reply */}
-        <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-950 border border-zinc-800">
+        <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200">
           <div>
-            <h3 className="font-bold text-white text-base">Enable AI Auto-Reply</h3>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Automatically respond to incoming customer WhatsApp messages.
+            <h3 className="font-bold text-slate-900 text-base">Enable Patient AI Auto-Reply</h3>
+            <p className="text-xs text-slate-600 font-semibold mt-0.5">
+              Automatically respond to incoming WhatsApp messages from patients using AI.
             </p>
           </div>
 
@@ -81,32 +81,32 @@ export default function SettingsPage() {
               onChange={(e) => setSettings({ ...settings, autoReplyEnabled: e.target.checked })}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
           </label>
         </div>
 
         {/* System Prompt */}
         <div className="space-y-2">
-          <label className="block text-xs font-semibold uppercase text-zinc-400 tracking-wider">
-            System Prompt
+          <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
+            Hospital AI System Prompt Knowledge Base
           </label>
           <textarea
-            rows={6}
+            rows={8}
             value={settings.systemPrompt}
             onChange={(e) => setSettings({ ...settings, systemPrompt: e.target.value })}
-            placeholder="You are an AI assistant for customer support..."
-            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-4 text-sm text-white focus:outline-none focus:border-blue-500 leading-relaxed transition-all"
+            placeholder="You are an AI assistant for Afzal Medical Complex..."
+            className="w-full bg-slate-50 border border-slate-300 rounded-xl p-4 text-sm text-slate-900 font-medium focus:outline-none focus:border-red-600 focus:bg-white leading-relaxed transition-all"
             required={settings.autoReplyEnabled}
           />
-          <p className="text-xs text-zinc-500">
-            Define your AI's persona, tone, instructions, and guardrails.
+          <p className="text-xs text-slate-500 font-semibold">
+            Defines the hospital knowledge base, doctor consultation fees, procedure packages, and medical safety rules.
           </p>
         </div>
 
         {/* Response Delays */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="block text-xs font-semibold uppercase text-zinc-400 tracking-wider">
+            <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
               Minimum Delay (Seconds)
             </label>
             <input
@@ -115,12 +115,12 @@ export default function SettingsPage() {
               max={30}
               value={settings.minDelay}
               onChange={(e) => setSettings({ ...settings, minDelay: parseInt(e.target.value) || 2 })}
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 font-bold focus:outline-none focus:border-red-600 focus:bg-white"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs font-semibold uppercase text-zinc-400 tracking-wider">
+            <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
               Maximum Delay (Seconds)
             </label>
             <input
@@ -129,22 +129,22 @@ export default function SettingsPage() {
               max={60}
               value={settings.maxDelay}
               onChange={(e) => setSettings({ ...settings, maxDelay: parseInt(e.target.value) || 5 })}
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 font-bold focus:outline-none focus:border-red-600 focus:bg-white"
             />
           </div>
         </div>
 
         {/* Submit */}
-        <div className="flex items-center justify-between pt-4 border-t border-zinc-800">
-          <div className="text-xs text-zinc-500 flex items-center gap-1.5">
-            <Shield className="w-4 h-4 text-emerald-400" />
+        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+          <div className="text-xs text-slate-600 font-semibold flex items-center gap-1.5">
+            <Shield className="w-4 h-4 text-emerald-600" />
             Configuration saved securely.
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl text-sm flex items-center gap-2 shadow-lg shadow-blue-900/20 transition-all"
+            className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-sm flex items-center gap-2 shadow-sm transition-all"
           >
             {saved ? (
               <>
