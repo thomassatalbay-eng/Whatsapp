@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Smartphone, MessageSquare, Settings, Bot, ShieldCheck, LogOut } from "lucide-react";
+import { LayoutDashboard, Smartphone, MessageSquare, Settings, ShieldCheck, LogOut, Cross, Key } from "lucide-react";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -18,21 +19,32 @@ export function Sidebar() {
   const navItems = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
     { name: "WhatsApp Channel", href: "/instance", icon: Smartphone },
-    { name: "Live Inbox", href: "/chats", icon: MessageSquare },
+    { name: "Live Patient Inbox", href: "/chats", icon: MessageSquare },
     { name: "AI Settings", href: "/settings", icon: Settings },
   ];
 
   return (
-    <aside className="w-64 bg-zinc-950 border-r border-zinc-800 flex flex-col justify-between shrink-0 h-screen sticky top-0">
+    <aside className="w-64 bg-slate-950 border-r border-slate-800 flex flex-col justify-between shrink-0 h-screen sticky top-0">
       <div>
-        {/* Brand */}
-        <div className="p-6 border-b border-zinc-800 flex items-center gap-3">
-          <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-500/20">
-            <Bot className="text-white w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="font-bold text-lg text-white leading-none">Anthrix AI</h1>
-            <span className="text-[10px] text-blue-400 font-medium tracking-wide">AUTOMATION SUITE</span>
+        {/* Brand Header */}
+        <div className="p-5 border-b border-slate-800 bg-gradient-to-b from-slate-900 to-slate-950">
+          <div className="flex items-center gap-3">
+            <div className="relative w-11 h-11 rounded-xl bg-white p-1 shadow-md shadow-red-950/30 border-2 border-red-600 overflow-hidden shrink-0 flex items-center justify-center">
+              <Image
+                src="/amc-logo.jpg"
+                alt="Afzal Medical Complex Logo"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
+            </div>
+            <div>
+              <h1 className="font-extrabold text-sm text-white leading-tight tracking-tight">Afzal Medical</h1>
+              <h2 className="font-bold text-xs text-red-500 leading-none">Complex & Trust</h2>
+              <span className="inline-block mt-1 text-[9px] font-bold text-blue-400 tracking-wider uppercase px-1.5 py-0.5 rounded bg-blue-950/80 border border-blue-800/50">
+                D.I. Khan • AI Suite
+              </span>
+            </div>
           </div>
         </div>
 
@@ -47,11 +59,11 @@ export function Sidebar() {
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                   isActive
-                    ? "bg-blue-600/15 text-blue-400 border border-blue-500/30 font-semibold"
-                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/60"
+                    ? "bg-gradient-to-r from-red-600/20 to-blue-600/20 text-white border border-red-500/40 font-bold shadow-lg shadow-red-950/20"
+                    : "text-slate-400 hover:text-white hover:bg-slate-900/80"
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? "text-blue-400" : "text-zinc-400"}`} />
+                <Icon className={`w-5 h-5 ${isActive ? "text-red-500" : "text-slate-400"}`} />
                 {item.name}
               </Link>
             );
@@ -60,16 +72,16 @@ export function Sidebar() {
       </div>
 
       {/* Footer & Logout */}
-      <div className="p-4 border-t border-zinc-800/80 bg-zinc-900/40 space-y-3">
-        <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium">
-          <ShieldCheck className="w-4 h-4" /> System Online & Active
+      <div className="p-4 border-t border-slate-800 bg-slate-900/60 space-y-3">
+        <div className="flex items-center gap-2 text-xs text-emerald-400 font-semibold">
+          <ShieldCheck className="w-4 h-4 text-blue-400" /> Patient Care Engine Active
         </div>
 
         <button
           onClick={handleLogout}
-          className="w-full px-3 py-2 rounded-xl bg-zinc-900 hover:bg-red-500/10 text-zinc-400 hover:text-red-400 border border-zinc-800 hover:border-red-500/30 text-xs font-medium flex items-center gap-2 transition-all"
+          className="w-full px-3 py-2.5 rounded-xl bg-slate-900 hover:bg-red-600/15 text-slate-300 hover:text-red-400 border border-slate-800 hover:border-red-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
         >
-          <LogOut className="w-4 h-4" /> Logout
+          <LogOut className="w-4 h-4 text-red-500" /> Sign Out
         </button>
       </div>
     </aside>
