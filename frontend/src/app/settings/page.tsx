@@ -52,9 +52,9 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      {/* Header */}
-      <div>
+    <div className="w-full space-y-8">
+      {/* Header - Full Width */}
+      <div className="w-full">
         <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
           <Settings className="w-8 h-8 text-blue-600" /> AI Hospital Settings
         </h1>
@@ -63,10 +63,10 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      {/* Form Card - White Theme */}
-      <form onSubmit={handleSubmit} className="p-8 rounded-3xl bg-white border border-slate-200 space-y-6 shadow-sm">
+      {/* Form Card - Full Width */}
+      <form onSubmit={handleSubmit} className="p-8 rounded-3xl bg-white border border-slate-200 space-y-6 shadow-sm w-full">
         {/* Toggle Auto-reply */}
-        <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200">
+        <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200 w-full">
           <div>
             <h3 className="font-bold text-slate-900 text-base">Enable Patient AI Auto-Reply</h3>
             <p className="text-xs text-slate-600 font-semibold mt-0.5">
@@ -86,12 +86,12 @@ export default function SettingsPage() {
         </div>
 
         {/* System Prompt */}
-        <div className="space-y-2">
+        <div className="space-y-2 w-full">
           <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
             Hospital AI System Prompt Knowledge Base
           </label>
           <textarea
-            rows={8}
+            rows={10}
             value={settings.systemPrompt}
             onChange={(e) => setSettings({ ...settings, systemPrompt: e.target.value })}
             placeholder="You are an AI assistant for Afzal Medical Complex..."
@@ -104,7 +104,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Response Delays */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
           <div className="space-y-2">
             <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
               Minimum Delay (Seconds)
@@ -135,7 +135,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Submit */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+        <div className="flex items-center justify-between pt-4 border-t border-slate-200 w-full">
           <div className="text-xs text-slate-600 font-semibold flex items-center gap-1.5">
             <Shield className="w-4 h-4 text-emerald-600" />
             Configuration saved securely.

@@ -77,9 +77,9 @@ export default function InstancePage() {
   const isConnecting = status === "CONNECTING";
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="w-full space-y-8">
+      {/* Page Header - Full Width */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
         <div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
             <Smartphone className="w-8 h-8 text-red-600" /> WhatsApp Channel
@@ -97,8 +97,8 @@ export default function InstancePage() {
         </button>
       </div>
 
-      {/* Main Instance Card */}
-      <div className="p-8 rounded-3xl bg-white border border-slate-200 space-y-8 shadow-sm">
+      {/* Main Instance Card - Full Width */}
+      <div className="p-8 rounded-3xl bg-white border border-slate-200 space-y-8 shadow-sm w-full">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-6">
           <div>
             <div className="text-xs font-bold uppercase text-slate-500 tracking-wider">Channel ID</div>
@@ -149,7 +149,7 @@ export default function InstancePage() {
         </div>
 
         {/* QR Code display area */}
-        <div className="flex flex-col items-center justify-center p-8 rounded-2xl bg-slate-50 border border-slate-200 min-h-[320px]">
+        <div className="flex flex-col items-center justify-center p-8 rounded-2xl bg-slate-50 border border-slate-200 min-h-[320px] w-full">
           {isConnected ? (
             <div className="text-center space-y-3">
               <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto ring-8 ring-emerald-50">
@@ -207,7 +207,7 @@ export default function InstancePage() {
         </div>
 
         {/* Security badge */}
-        <div className="flex items-center gap-3 text-xs text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-200 font-semibold">
+        <div className="flex items-center gap-3 text-xs text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-200 font-semibold w-full">
           <ShieldCheck className="w-5 h-5 text-blue-600 shrink-0" />
           <span>Encrypted session authentication and real-time synchronization.</span>
         </div>

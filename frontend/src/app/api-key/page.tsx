@@ -49,9 +49,9 @@ export default function ApiKeyPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8 pt-6">
-      {/* Header */}
-      <div>
+    <div className="w-full space-y-8 pt-2">
+      {/* Header - Full Width */}
+      <div className="w-full">
         <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
           <Key className="w-8 h-8 text-amber-500" /> LLM API Key Configuration
         </h1>
@@ -60,15 +60,15 @@ export default function ApiKeyPage() {
         </p>
       </div>
 
-      {/* Form Card - White Theme */}
-      <form onSubmit={handleSubmit} className="p-8 rounded-3xl bg-white border border-slate-200 space-y-6 shadow-sm">
+      {/* Form Card - Full Width */}
+      <form onSubmit={handleSubmit} className="p-8 rounded-3xl bg-white border border-slate-200 space-y-6 shadow-sm w-full">
         {/* Primary API Key */}
-        <div className="space-y-3">
+        <div className="space-y-3 w-full">
           <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
             Primary API Key
           </label>
 
-          <div className="relative">
+          <div className="relative w-full">
             <input
               type={showKey ? "text" : "password"}
               value={apiKey}
@@ -88,7 +88,7 @@ export default function ApiKeyPage() {
         </div>
 
         {/* Backup API Key */}
-        <div className="space-y-3 pt-2">
+        <div className="space-y-3 pt-2 w-full">
           <div className="flex justify-between items-center">
             <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
               Backup API Key (Optional Failover)
@@ -98,7 +98,7 @@ export default function ApiKeyPage() {
             </span>
           </div>
 
-          <div className="relative">
+          <div className="relative w-full">
             <input
               type={showBackupKey ? "text" : "password"}
               value={backupApiKey}
@@ -121,7 +121,7 @@ export default function ApiKeyPage() {
         </div>
 
         {/* Action Button */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+        <div className="flex items-center justify-between pt-4 border-t border-slate-200 w-full">
           <div className="text-xs text-slate-600 font-semibold flex items-center gap-1.5">
             <Shield className="w-4 h-4 text-emerald-600" />
             Encrypted Storage

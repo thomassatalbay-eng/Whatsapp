@@ -15,10 +15,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-slate-100 text-slate-900 flex min-h-screen font-sans">
+      <body className="bg-slate-100 text-slate-900 flex min-h-screen font-sans w-full">
         <AuthGuard>
           <Sidebar />
-          <main className="flex-1 overflow-y-auto p-8">{children}</main>
+          <main className="flex-1 w-full overflow-y-auto p-8">{children}</main>
         </AuthGuard>
       </body>
     </html>

@@ -89,9 +89,9 @@ export default function ChatsPage() {
   const formatPhone = (phone: string) => phone.replace(/@.*$/, "");
 
   return (
-    <div className="max-w-6xl mx-auto h-[calc(100vh-64px)] flex flex-col space-y-4">
-      {/* Header */}
-      <div>
+    <div className="w-full h-[calc(100vh-64px)] flex flex-col space-y-4">
+      {/* Header - Full Width */}
+      <div className="w-full">
         <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
           <MessageSquare className="w-8 h-8 text-red-600" /> Live Patient Inbox
         </h1>
@@ -100,10 +100,10 @@ export default function ChatsPage() {
         </p>
       </div>
 
-      {/* Main Inbox Container - White Theme */}
-      <div className="flex-1 bg-white border border-slate-200 rounded-3xl overflow-hidden flex shadow-sm">
+      {/* Main Inbox Container - Full Width */}
+      <div className="flex-1 bg-white border border-slate-200 rounded-3xl overflow-hidden flex shadow-sm w-full">
         {/* Sidebar Contacts List */}
-        <div className="w-1/3 min-w-[260px] border-r border-slate-200 bg-slate-50 flex flex-col">
+        <div className="w-1/3 min-w-[280px] border-r border-slate-200 bg-slate-50 flex flex-col">
           <div className="p-4 border-b border-slate-200 text-xs font-bold uppercase text-slate-500 tracking-wider">
             Patient Conversations
           </div>

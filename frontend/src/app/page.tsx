@@ -36,9 +36,9 @@ export default function DashboardPage() {
   const isConnecting = status === "CONNECTING";
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
-      {/* Header - White Theme */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+    <div className="space-y-8 w-full">
+      {/* Header - Full Width */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm w-full">
         <div className="flex items-center gap-4">
           <div className="p-2 rounded-2xl bg-white border-2 border-red-600 shadow-sm shrink-0">
             <Image
@@ -65,8 +65,8 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* Quick Stats Grid - White Theme */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+      {/* Quick Stats Grid - Full Width */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full">
         {/* Status Card */}
         <div className="p-5 rounded-2xl bg-white border border-slate-200 space-y-3 shadow-sm">
           <div className="flex justify-between items-center text-slate-500 text-xs font-bold uppercase tracking-wider">
@@ -131,10 +131,10 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content Grid - White Theme */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Main Content Grid - Full Width */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
         {/* Patient Care Banner */}
-        <div className="p-6 rounded-3xl bg-white border-2 border-red-600 md:col-span-2 space-y-4 shadow-sm">
+        <div className="p-6 rounded-3xl bg-white border-2 border-red-600 lg:col-span-2 space-y-4 shadow-sm">
           <div className="flex items-center gap-2 text-red-600 font-bold text-xs uppercase tracking-wider">
             <Activity className="w-4 h-4 text-blue-600" /> Automated Patient Guidance Engine
           </div>
