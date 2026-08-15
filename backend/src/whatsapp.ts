@@ -127,7 +127,7 @@ export const startWhatsApp = async (): Promise<void> => {
 
                     try {
                         const [reply] = await Promise.all([
-                            getAIReply(text, config.systemPrompt, config.groqApiKey, history),
+                            getAIReply(text, config.systemPrompt, config.groqApiKey, history, config.backupGroqApiKey),
                             new Promise(res => setTimeout(res, randomDelay))
                         ]);
 
