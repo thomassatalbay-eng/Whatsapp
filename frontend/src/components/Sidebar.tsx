@@ -1,11 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, Smartphone, MessageSquare, Settings, Bot, ShieldCheck } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LayoutDashboard, Smartphone, MessageSquare, Settings, Bot, ShieldCheck, LogOut } from "lucide-react";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  if (pathname === "/login") return null;
+
+  const handleLogout = () => {
+    localStorage.removeItem("auth_token");
+    router.push("/login");
+  };
 
   const navItems = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -51,14 +59,18 @@ export function Sidebar() {
         </nav>
       </div>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-zinc-800/80 bg-zinc-900/40">
-        <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium mb-1">
+      {/* Footer & Logout */}
+      <div className="p-4 border-t border-zinc-800/80 bg-zinc-900/40 space-y-3">
+        <div className="flex items-center gap-2 text-xs text-emerald-400 font-medium">
           <ShieldCheck className="w-4 h-4" /> System Online & Active
         </div>
-        <p className="text-[11px] text-zinc-500">
-          Continuous AI Messaging Engine.
-        </p>
+
+        <button
+          onClick={handleLogout}
+          className="w-full px-3 py-2 rounded-xl bg-zinc-900 hover:bg-red-500/10 text-zinc-400 hover:text-red-400 border border-zinc-800 hover:border-red-500/30 text-xs font-medium flex items-center gap-2 transition-all"
+        >
+          <LogOut className="w-4 h-4" /> Logout
+        </button>
       </div>
     </aside>
   );

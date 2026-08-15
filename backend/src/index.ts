@@ -24,6 +24,18 @@ app.get('/health', (_req, res) => {
     });
 });
 
+// Simple zero-database text matching login endpoint
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body || {};
+    const validUser = process.env.ADMIN_USERNAME || 'admin';
+    const validPass = process.env.ADMIN_PASSWORD || 'afzal123';
+
+    if (username === validUser && password === validPass) {
+        return res.json({ success: true, token: 'afzal_auth_token_secured' });
+    }
+    return res.status(401).json({ success: false, error: 'Invalid username or password' });
+});
+
 // 2. WhatsApp Instance endpoints
 app.get('/api/instance/status', (_req, res) => {
     res.json(getInstanceStatus());
