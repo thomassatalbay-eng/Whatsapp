@@ -6,6 +6,7 @@ export interface AppConfig {
     systemPrompt: string;
     groqApiKey: string;
     backupGroqApiKey?: string;
+    backupGroqApiKey2?: string;
     minDelay: number;
     maxDelay: number;
 }

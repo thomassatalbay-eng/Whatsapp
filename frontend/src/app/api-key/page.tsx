@@ -7,8 +7,10 @@ import { Key, Save, CheckCircle2, Shield, Eye, EyeOff, ShieldCheck } from "lucid
 export default function ApiKeyPage() {
   const [apiKey, setApiKey] = useState("");
   const [backupApiKey, setBackupApiKey] = useState("");
+  const [backupApiKey2, setBackupApiKey2] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [showBackupKey, setShowBackupKey] = useState(false);
+  const [showBackupKey2, setShowBackupKey2] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -17,6 +19,7 @@ export default function ApiKeyPage() {
       const data = await fetchApi("/settings");
       setApiKey(data.groqApiKey || "");
       setBackupApiKey(data.backupGroqApiKey || "");
+      setBackupApiKey2(data.backupGroqApiKey2 || "");
     } catch (e) {
       console.error(e);
     }
@@ -36,7 +39,8 @@ export default function ApiKeyPage() {
         method: "POST",
         body: JSON.stringify({
           groqApiKey: apiKey,
-          backupGroqApiKey: backupApiKey
+          backupGroqApiKey: backupApiKey,
+          backupGroqApiKey2: backupApiKey2
         }),
       });
       setSaved(true);
@@ -56,7 +60,7 @@ export default function ApiKeyPage() {
           <Key className="w-8 h-8 text-amber-500" /> LLM API Key Configuration
         </h1>
         <p className="text-slate-600 mt-1 text-sm font-semibold">
-          Configure Primary & Backup API Keys for 100% failover uptime.
+          Configure Primary, Secondary & Tertiary API Keys for 3-tier 100% failover uptime.
         </p>
       </div>
 
@@ -65,7 +69,7 @@ export default function ApiKeyPage() {
         {/* Primary API Key */}
         <div className="space-y-3 w-full">
           <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
-            Primary API Key
+            Primary API Key (#1)
           </label>
 
           <div className="relative w-full">
@@ -87,14 +91,14 @@ export default function ApiKeyPage() {
           </div>
         </div>
 
-        {/* Backup API Key */}
+        {/* Backup API Key #1 */}
         <div className="space-y-3 pt-2 w-full">
           <div className="flex justify-between items-center">
             <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
-              Backup API Key (Optional Failover)
+              Backup API Key #1 (Secondary Failover)
             </label>
             <span className="text-[11px] text-emerald-700 font-bold flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" /> Auto-Failover Enabled
+              <ShieldCheck className="w-3.5 h-3.5" /> Tier 2 Failover
             </span>
           </div>
 
@@ -103,7 +107,7 @@ export default function ApiKeyPage() {
               type={showBackupKey ? "text" : "password"}
               value={backupApiKey}
               onChange={(e) => setBackupApiKey(e.target.value)}
-              placeholder="Enter Backup API Key (Optional)..."
+              placeholder="Enter Backup API Key #1 (Optional)..."
               className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-4 pr-12 py-3.5 text-sm text-slate-900 font-mono focus:outline-none focus:border-red-600 focus:bg-white transition-all"
             />
             <button
@@ -114,9 +118,38 @@ export default function ApiKeyPage() {
               {showBackupKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
+        </div>
+
+        {/* Backup API Key #2 */}
+        <div className="space-y-3 pt-2 w-full">
+          <div className="flex justify-between items-center">
+            <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">
+              Backup API Key #2 (Tertiary Failover)
+            </label>
+            <span className="text-[11px] text-blue-700 font-bold flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5" /> Tier 3 Failover
+            </span>
+          </div>
+
+          <div className="relative w-full">
+            <input
+              type={showBackupKey2 ? "text" : "password"}
+              value={backupApiKey2}
+              onChange={(e) => setBackupApiKey2(e.target.value)}
+              placeholder="Enter Backup API Key #2 (Optional)..."
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-4 pr-12 py-3.5 text-sm text-slate-900 font-mono focus:outline-none focus:border-red-600 focus:bg-white transition-all"
+            />
+            <button
+              type="button"
+              onClick={() => setShowBackupKey2(!showBackupKey2)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              {showBackupKey2 ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
 
           <p className="text-xs text-slate-500 font-semibold">
-            If Primary API Key reaches daily limits, the system will automatically switch to the Backup Key without dropping messages!
+            The AI engine automatically rotates across Key #1 → Key #2 → Key #3 if daily limits are reached!
           </p>
         </div>
 
@@ -134,7 +167,7 @@ export default function ApiKeyPage() {
           >
             {saved ? (
               <>
-                <CheckCircle2 className="w-4 h-4 text-emerald-300" /> API Keys Saved!
+                <CheckCircle2 className="w-4 h-4 text-emerald-300" /> All 3 API Keys Saved!
               </>
             ) : (
               <>

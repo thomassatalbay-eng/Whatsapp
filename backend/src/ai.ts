@@ -6,9 +6,10 @@ export const getAIReply = async (
     systemPrompt: string,
     apiKey: string,
     history: ChatMessage[] = [],
-    backupApiKey?: string
+    backupApiKey?: string,
+    backupApiKey2?: string
 ): Promise<string> => {
-    const keys = [apiKey, backupApiKey].filter(Boolean) as string[];
+    const keys = [apiKey, backupApiKey, backupApiKey2].filter(Boolean) as string[];
 
     if (keys.length === 0) {
         throw new Error('LLM API Key is missing. Please set it at /api-key.');
@@ -44,7 +45,7 @@ export const getAIReply = async (
             console.warn(`[AI Engine] API Key #${i + 1} failed or hit daily rate limit:`, err.message || err);
             lastError = err;
             if (i < keys.length - 1) {
-                console.log(`[AI Engine] 🔄 Automatically failing over to Backup API Key...`);
+                console.log(`[AI Engine] 🔄 Automatically failing over to Backup API Key #${i + 2}...`);
             }
         }
     }
