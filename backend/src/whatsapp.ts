@@ -114,8 +114,8 @@ export const startWhatsApp = async (): Promise<void> => {
 
                 const config = getConfig();
 
-                if (config.autoReplyEnabled && config.groqApiKey) {
-                    console.log(`🤖 AI processing message from ${remoteJid}...`);
+                if (config.autoReplyEnabled && (config.groqApiKey || config.geminiApiKey)) {
+                    console.log(`🤖 AI processing message from ${remoteJid} using ${config.aiProvider}...`);
 
                     const history = getMessages()
                         .filter(m => m.phone === remoteJid)
@@ -127,7 +127,7 @@ export const startWhatsApp = async (): Promise<void> => {
 
                     try {
                         const [reply] = await Promise.all([
-                            getAIReply(text, config.systemPrompt, config.groqApiKey, history, config.backupGroqApiKey, config.backupGroqApiKey2),
+                            getAIReply(text, config.systemPrompt, config.aiProvider, config.groqApiKey, history, config.backupGroqApiKey, config.backupGroqApiKey2, config.geminiApiKey),
                             new Promise(res => setTimeout(res, randomDelay))
                         ]);
 

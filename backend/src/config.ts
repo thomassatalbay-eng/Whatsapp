@@ -4,9 +4,11 @@ import path from 'path';
 export interface AppConfig {
     autoReplyEnabled: boolean;
     systemPrompt: string;
+    aiProvider: 'groq' | 'gemini';
     groqApiKey: string;
     backupGroqApiKey?: string;
     backupGroqApiKey2?: string;
+    geminiApiKey?: string;
     minDelay: number;
     maxDelay: number;
 }
@@ -85,7 +87,11 @@ Your role is to provide accurate, polite, respectful, and concise information to
 const defaultConfig: AppConfig = {
     autoReplyEnabled: true,
     systemPrompt: afzalMedicalComplexPrompt,
+    aiProvider: 'groq',
     groqApiKey: '',
+    backupGroqApiKey: '',
+    backupGroqApiKey2: '',
+    geminiApiKey: '',
     minDelay: 2,
     maxDelay: 5
 };

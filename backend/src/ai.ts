@@ -4,15 +4,68 @@ import { ChatMessage } from './config.js';
 export const getAIReply = async (
     text: string,
     systemPrompt: string,
-    apiKey: string,
+    aiProvider: 'groq' | 'gemini',
+    apiKey: string, // groq primary key
     history: ChatMessage[] = [],
     backupApiKey?: string,
-    backupApiKey2?: string
+    backupApiKey2?: string,
+    geminiApiKey?: string
 ): Promise<string> => {
+    
+    if (aiProvider === 'gemini') {
+        if (!geminiApiKey) {
+            throw new Error('Gemini API Key is missing. Please set it at /api-key.');
+        }
+
+        const formattedHistory = history.map(m => ({
+            role: m.isFromMe ? 'model' : 'user',
+            parts: [{ text: m.content }]
+        }));
+
+        const contents = [
+            ...formattedHistory,
+            { role: 'user', parts: [{ text }] }
+        ];
+
+        const payload = {
+            system_instruction: {
+                parts: [{ text: systemPrompt }]
+            },
+            contents,
+            generationConfig: {
+                temperature: 0.4,
+                maxOutputTokens: 1024
+            }
+        };
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+        
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('[AI Engine] Gemini API Error:', errorData);
+                throw new Error(errorData?.error?.message || 'Gemini API failed');
+            }
+
+            const data = await response.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
+        } catch (err: any) {
+            console.error('[AI Engine] Gemini Request Failed:', err.message || err);
+            throw err;
+        }
+    }
+
+    // Groq logic
     const keys = [apiKey, backupApiKey, backupApiKey2].filter(Boolean) as string[];
 
     if (keys.length === 0) {
-        throw new Error('LLM API Key is missing. Please set it at /api-key.');
+        throw new Error('Groq API Key is missing. Please set it at /api-key.');
     }
 
     let lastError: any = null;
@@ -50,5 +103,5 @@ export const getAIReply = async (
         }
     }
 
-    throw lastError || new Error('All API Keys failed.');
+    throw lastError || new Error('All Groq API Keys failed.');
 };
