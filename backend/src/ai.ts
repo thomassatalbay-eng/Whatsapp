@@ -52,7 +52,7 @@ export const getAIReply = async (
             contents,
             generationConfig: {
                 temperature: 0.4,
-                maxOutputTokens: 1024
+                maxOutputTokens: 4096
             }
         };
 
@@ -108,7 +108,7 @@ export const getAIReply = async (
                 messages,
                 model: 'llama-3.3-70b-versatile',
                 temperature: 0.4,
-                max_tokens: 1024,
+                max_tokens: 4096,
             });
 
             return completion.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
