@@ -95,8 +95,8 @@ export default function ApiKeyPage() {
             >
               <Zap className={`w-5 h-5 mt-0.5 ${aiProvider === 'groq' ? 'text-red-600' : 'text-slate-400'}`} />
               <div>
-                <div className="font-bold">Groq (Llama 3.3 70B)</div>
-                <div className="text-xs mt-1 opacity-80">Ultra-fast, open-source model. Supports 3-tier failover.</div>
+                <div className="font-bold">LLM</div>
+                <div className="text-xs mt-1 opacity-80">Standard LLM Model</div>
               </div>
             </button>
             <button
