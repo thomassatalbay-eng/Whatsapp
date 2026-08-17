@@ -110,7 +110,8 @@ export const getAIReply = async (
                     model: 'qwen/qwen3-8b:free',
                     messages,
                     temperature: 0.4,
-                    max_tokens: 4096
+                    max_tokens: 4096,
+                    thinking: { type: 'disabled' }
                 })
             });
 
@@ -121,7 +122,21 @@ export const getAIReply = async (
             }
 
             const data = await response.json();
-            return data.choices?.[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
+            console.log('[OpenRouter] Raw response:', JSON.stringify(data?.choices?.[0]?.message));
+
+            let content = data.choices?.[0]?.message?.content || '';
+            const reasoning = data.choices?.[0]?.message?.reasoning || '';
+
+            // Qwen3 sometimes wraps answer in <think>...</think> blocks
+            // Strip all <think>...</think> sections to get the real answer
+            content = content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
+            // If content is empty after stripping, fall back to reasoning field
+            if (!content && reasoning) {
+                content = reasoning.trim();
+            }
+
+            return content || "I'm sorry, I couldn't generate a response.";
         } catch (err: any) {
             console.error('[AI Engine] OpenRouter Request Failed:', err.message || err);
             throw err;
