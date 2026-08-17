@@ -17,15 +17,33 @@ export const getAIReply = async (
             throw new Error('Gemini API Key is missing. Please set it at /api-key.');
         }
 
-        const formattedHistory = history.map(m => ({
-            role: m.isFromMe ? 'model' : 'user',
-            parts: [{ text: m.content }]
-        }));
+        const combinedHistory: any[] = [];
+        let currentRole = '';
+        let currentText = '';
 
-        const contents = [
-            ...formattedHistory,
-            { role: 'user', parts: [{ text }] }
-        ];
+        for (const m of history) {
+            const role = m.isFromMe ? 'model' : 'user';
+            if (role === currentRole) {
+                currentText += '\n\n' + m.content;
+            } else {
+                if (currentRole) {
+                    combinedHistory.push({ role: currentRole, parts: [{ text: currentText }] });
+                }
+                currentRole = role;
+                currentText = m.content;
+            }
+        }
+        if (currentRole) {
+            combinedHistory.push({ role: currentRole, parts: [{ text: currentText }] });
+        }
+
+        if (combinedHistory.length > 0 && combinedHistory[combinedHistory.length - 1].role === 'user') {
+            combinedHistory[combinedHistory.length - 1].parts[0].text += '\n\n' + text;
+        } else {
+            combinedHistory.push({ role: 'user', parts: [{ text }] });
+        }
+
+        const contents = combinedHistory;
 
         const payload = {
             system_instruction: {
@@ -38,7 +56,7 @@ export const getAIReply = async (
             }
         };
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
         
         try {
             const response = await fetch(url, {
