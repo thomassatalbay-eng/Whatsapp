@@ -114,7 +114,7 @@ export const startWhatsApp = async (): Promise<void> => {
 
                 const config = getConfig();
 
-                if (config.autoReplyEnabled && (config.groqApiKey || config.geminiApiKey)) {
+                if (config.autoReplyEnabled && (config.groqApiKey || config.geminiApiKey || config.openRouterApiKey)) {
                     console.log(`🤖 AI processing message from ${remoteJid} using ${config.aiProvider}...`);
 
                     const history = getMessages()
