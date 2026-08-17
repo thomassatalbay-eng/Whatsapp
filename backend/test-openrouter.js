@@ -10,7 +10,7 @@ async function run() {
             'X-Title': 'Afzal Medical Complex Bot'
         },
         body: JSON.stringify({
-            model: 'qwen/qwen3-8b:free',
+            model: 'qwen/qwen3-8b',
             messages: [
                 { role: 'system', content: 'You are a helpful assistant.' },
                 { role: 'user', content: 'Hello, what is your name?' }

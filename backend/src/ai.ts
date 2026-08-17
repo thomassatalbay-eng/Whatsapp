@@ -107,7 +107,7 @@ export const getAIReply = async (
                     'X-Title': 'Afzal Medical Complex Bot'
                 },
                 body: JSON.stringify({
-                    model: 'qwen/qwen3-8b:free',
+                    model: 'qwen/qwen3-8b',
                     messages,
                     temperature: 0.4,
                     max_tokens: 4096,
