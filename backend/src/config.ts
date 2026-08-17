@@ -4,11 +4,12 @@ import path from 'path';
 export interface AppConfig {
     autoReplyEnabled: boolean;
     systemPrompt: string;
-    aiProvider: 'groq' | 'gemini';
+    aiProvider: 'groq' | 'gemini' | 'openrouter';
     groqApiKey: string;
     backupGroqApiKey?: string;
     backupGroqApiKey2?: string;
     geminiApiKey?: string;
+    openRouterApiKey?: string;
     minDelay: number;
     maxDelay: number;
 }
@@ -92,6 +93,7 @@ const defaultConfig: AppConfig = {
     backupGroqApiKey: '',
     backupGroqApiKey2: '',
     geminiApiKey: '',
+    openRouterApiKey: '',
     minDelay: 2,
     maxDelay: 5
 };

@@ -4,12 +4,13 @@ import { ChatMessage } from './config.js';
 export const getAIReply = async (
     text: string,
     systemPrompt: string,
-    aiProvider: 'groq' | 'gemini',
+    aiProvider: 'groq' | 'gemini' | 'openrouter',
     apiKey: string, // groq primary key
     history: ChatMessage[] = [],
     backupApiKey?: string,
     backupApiKey2?: string,
-    geminiApiKey?: string
+    geminiApiKey?: string,
+    openRouterApiKey?: string
 ): Promise<string> => {
     
     if (aiProvider === 'gemini') {
@@ -75,6 +76,54 @@ export const getAIReply = async (
             return data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't generate a response.";
         } catch (err: any) {
             console.error('[AI Engine] Gemini Request Failed:', err.message || err);
+            throw err;
+        }
+    }
+
+    // OpenRouter / Qwen3 logic
+    if (aiProvider === 'openrouter') {
+        if (!openRouterApiKey) {
+            throw new Error('OpenRouter API Key is missing. Please set it at /api-key.');
+        }
+
+        const formattedHistory = history.map(m => ({
+            role: m.isFromMe ? 'assistant' : 'user',
+            content: m.content
+        }));
+
+        const messages = [
+            { role: 'system', content: systemPrompt },
+            ...formattedHistory,
+            { role: 'user', content: text }
+        ];
+
+        try {
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${openRouterApiKey}`,
+                    'Content-Type': 'application/json',
+                    'HTTP-Referer': 'https://afzalmedicalcomplex.com',
+                    'X-Title': 'Afzal Medical Complex Bot'
+                },
+                body: JSON.stringify({
+                    model: 'qwen/qwen3-8b:free',
+                    messages,
+                    temperature: 0.4,
+                    max_tokens: 4096
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('[AI Engine] OpenRouter API Error:', errorData);
+                throw new Error(errorData?.error?.message || 'OpenRouter API failed');
+            }
+
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
+        } catch (err: any) {
+            console.error('[AI Engine] OpenRouter Request Failed:', err.message || err);
             throw err;
         }
     }
