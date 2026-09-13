@@ -10,7 +10,10 @@ export const getAIReply = async (
     backupApiKey?: string,
     backupApiKey2?: string,
     geminiApiKey?: string,
-    openRouterApiKey?: string
+    openRouterApiKey?: string,
+    groqModel?: string,
+    backupApiKey3?: string,
+    backupApiKey4?: string
 ): Promise<string> => {
     
     if (aiProvider === 'gemini') {
@@ -144,46 +147,77 @@ export const getAIReply = async (
     }
 
     // Groq logic
-    const keys = [apiKey, backupApiKey, backupApiKey2].filter(Boolean) as string[];
+    const keys = [apiKey, backupApiKey, backupApiKey2, backupApiKey3, backupApiKey4].filter(Boolean) as string[];
 
     if (keys.length === 0) {
         throw new Error('Groq API Key is missing. Please set it at /api-key.');
     }
 
+    const candidateModels = [
+        groqModel,
+        'openai/gpt-oss-120b',
+        'gpt-oss-120b',
+        'openai/gpt-oss-20b',
+        'gpt-oss-20b',
+        'qwen/qwen-3.8-27b',
+        'qwen-3.8-27b',
+        'qwen/qwen-3.6-27b',
+        'qwen-3.6-27b',
+        'groq/compound',
+        'groq-compound',
+        'minimax/minimax-m2.7'
+    ].filter(Boolean) as string[];
+
+    const modelsToTry = Array.from(new Set(candidateModels));
+
     let lastError: any = null;
 
     for (let i = 0; i < keys.length; i++) {
         const currentKey = keys[i];
-        try {
-            const groq = new Groq({ apiKey: currentKey });
+        const groq = new Groq({ apiKey: currentKey });
 
-            const formattedHistory = history.map(m => ({
-                role: m.isFromMe ? ('assistant' as const) : ('user' as const),
-                content: m.content
-            }));
+        const formattedHistory = history.map(m => ({
+            role: m.isFromMe ? ('assistant' as const) : ('user' as const),
+            content: m.content
+        }));
 
-            const messages = [
-                { role: 'system' as const, content: systemPrompt },
-                ...formattedHistory,
-                { role: 'user' as const, content: text }
-            ];
+        const messages = [
+            { role: 'system' as const, content: systemPrompt },
+            ...formattedHistory,
+            { role: 'user' as const, content: text }
+        ];
 
-            const completion = await groq.chat.completions.create({
-                messages,
-                model: 'llama-3.3-70b-versatile',
-                temperature: 0.4,
-                max_tokens: 4096,
-            });
+        for (const modelName of modelsToTry) {
+            try {
+                console.log(`[AI Engine] Attempting Groq with Key #${i + 1}, model: ${modelName}...`);
+                const completion = await groq.chat.completions.create({
+                    messages,
+                    model: modelName,
+                    temperature: 0.4,
+                    max_tokens: 4096,
+                });
 
-            return completion.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
-        } catch (err: any) {
-            console.warn(`[AI Engine] API Key #${i + 1} failed or hit daily rate limit:`, err.message || err);
-            lastError = err;
-            if (i < keys.length - 1) {
-                console.log(`[AI Engine] 🔄 Automatically failing over to Backup API Key #${i + 2}...`);
+                const reply = completion.choices[0]?.message?.content;
+                if (reply) {
+                    return reply;
+                }
+            } catch (err: any) {
+                const errMsg = err?.message || String(err);
+                console.warn(`[AI Engine] Groq model '${modelName}' with Key #${i + 1} failed: ${errMsg}`);
+                lastError = err;
+
+                // If key is rate limited or invalid, break to next key
+                if (err?.status === 429 || errMsg.includes('rate') || err?.status === 401 || errMsg.includes('invalid_api_key')) {
+                    break;
+                }
+                // Otherwise (e.g. model not found / deprecated), continue trying next model
             }
+        }
+
+        if (i < keys.length - 1) {
+            console.log(`[AI Engine] 🔄 Automatically failing over to Backup API Key #${i + 2}...`);
         }
     }
 
-    throw lastError || new Error('All Groq API Keys failed.');
+    throw lastError || new Error('All Groq API Keys and models failed.');
 };

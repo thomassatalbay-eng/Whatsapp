@@ -9,12 +9,16 @@ export default function ApiKeyPage() {
   const [apiKey, setApiKey] = useState("");
   const [backupApiKey, setBackupApiKey] = useState("");
   const [backupApiKey2, setBackupApiKey2] = useState("");
+  const [backupApiKey3, setBackupApiKey3] = useState("");
+  const [backupApiKey4, setBackupApiKey4] = useState("");
   const [geminiApiKey, setGeminiApiKey] = useState("");
   const [openRouterApiKey, setOpenRouterApiKey] = useState("");
 
   const [showKey, setShowKey] = useState(false);
   const [showBackupKey, setShowBackupKey] = useState(false);
   const [showBackupKey2, setShowBackupKey2] = useState(false);
+  const [showBackupKey3, setShowBackupKey3] = useState(false);
+  const [showBackupKey4, setShowBackupKey4] = useState(false);
   const [showGeminiKey, setShowGeminiKey] = useState(false);
   const [showOpenRouterKey, setShowOpenRouterKey] = useState(false);
 
@@ -28,6 +32,8 @@ export default function ApiKeyPage() {
       setApiKey(data.groqApiKey || "");
       setBackupApiKey(data.backupGroqApiKey || "");
       setBackupApiKey2(data.backupGroqApiKey2 || "");
+      setBackupApiKey3(data.backupGroqApiKey3 || "");
+      setBackupApiKey4(data.backupGroqApiKey4 || "");
       setGeminiApiKey(data.geminiApiKey || "");
       setOpenRouterApiKey(data.openRouterApiKey || "");
     } catch (e) {
@@ -52,6 +58,8 @@ export default function ApiKeyPage() {
           groqApiKey: apiKey,
           backupGroqApiKey: backupApiKey,
           backupGroqApiKey2: backupApiKey2,
+          backupGroqApiKey3: backupApiKey3,
+          backupGroqApiKey4: backupApiKey4,
           geminiApiKey,
           openRouterApiKey
         }),
@@ -73,7 +81,7 @@ export default function ApiKeyPage() {
           <Key className="w-8 h-8 text-amber-500" /> LLM API Key Configuration
         </h1>
         <p className="text-slate-600 mt-1 text-sm font-semibold">
-          Choose your AI Provider and configure your API Keys securely.
+          Choose your AI Provider and configure your API Keys with up to 5-tier failover protection.
         </p>
       </div>
 
@@ -99,7 +107,7 @@ export default function ApiKeyPage() {
               <Zap className={`w-5 h-5 mt-0.5 flex-shrink-0 ${aiProvider === 'groq' ? 'text-red-600' : 'text-slate-400'}`} />
               <div>
                 <div className="font-bold">LLM</div>
-                <div className="text-xs mt-1 opacity-80">Standard LLM Model</div>
+                <div className="text-xs mt-1 opacity-80">5-Tier Failover Engine</div>
               </div>
             </button>
 
@@ -133,7 +141,7 @@ export default function ApiKeyPage() {
               <Bot className={`w-5 h-5 mt-0.5 flex-shrink-0 ${aiProvider === 'openrouter' ? 'text-emerald-600' : 'text-slate-400'}`} />
               <div>
                 <div className="font-bold">OpenRouter</div>
-                <div className="text-xs mt-1 opacity-80">Qwen3 8B (Free)</div>
+                <div className="text-xs mt-1 opacity-80">Qwen3 8B</div>
               </div>
             </button>
           </div>
@@ -187,12 +195,12 @@ export default function ApiKeyPage() {
                   {showOpenRouterKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              <p className="text-xs text-slate-500 font-semibold">Get your free OpenRouter API Key from openrouter.ai. Uses Qwen3 8B (free tier).</p>
+              <p className="text-xs text-slate-500 font-semibold">Get your OpenRouter API Key from openrouter.ai. Uses Qwen3 8B.</p>
             </div>
           )}
 
           {aiProvider === 'groq' && (
-            /* GROQ FIELDS */
+            /* GROQ FIELDS (5-TIER FAILOVER) */
             <>
               {/* Primary */}
               <div className="space-y-3 w-full">
@@ -253,7 +261,49 @@ export default function ApiKeyPage() {
                     {showBackupKey2 ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                <p className="text-xs text-slate-500 font-semibold">The AI engine automatically rotates across Key #1 → Key #2 → Key #3 if daily limits are reached!</p>
+              </div>
+
+              {/* Backup #3 (Fourth Key) */}
+              <div className="space-y-3 pt-2 w-full">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">Backup API Key #3 (Quaternary Failover)</label>
+                  <span className="text-[11px] text-purple-700 font-bold flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5" /> Tier 4 Failover</span>
+                </div>
+                <div className="relative w-full">
+                  <input
+                    type={showBackupKey3 ? "text" : "password"}
+                    value={backupApiKey3}
+                    onChange={(e) => setBackupApiKey3(e.target.value)}
+                    placeholder="Enter Backup API Key #3 (Optional)..."
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-4 pr-12 py-3.5 text-sm text-slate-900 font-mono focus:outline-none focus:border-red-600 focus:bg-white transition-all"
+                  />
+                  <button type="button" onClick={() => setShowBackupKey3(!showBackupKey3)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                    {showBackupKey3 ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Backup #4 (Fifth Key) */}
+              <div className="space-y-3 pt-2 w-full">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold uppercase text-slate-700 tracking-wider">Backup API Key #4 (Quinary Failover)</label>
+                  <span className="text-[11px] text-amber-700 font-bold flex items-center gap-1"><ShieldCheck className="w-3.5 h-3.5" /> Tier 5 Failover</span>
+                </div>
+                <div className="relative w-full">
+                  <input
+                    type={showBackupKey4 ? "text" : "password"}
+                    value={backupApiKey4}
+                    onChange={(e) => setBackupApiKey4(e.target.value)}
+                    placeholder="Enter Backup API Key #4 (Optional)..."
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-4 pr-12 py-3.5 text-sm text-slate-900 font-mono focus:outline-none focus:border-red-600 focus:bg-white transition-all"
+                  />
+                  <button type="button" onClick={() => setShowBackupKey4(!showBackupKey4)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+                    {showBackupKey4 ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500 font-semibold">5-Tier Key Rotation: The AI engine rotates across Key #1 → #2 → #3 → #4 → #5 automatically if any key hits rate limits!</p>
               </div>
             </>
           )}
