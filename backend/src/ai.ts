@@ -1,6 +1,9 @@
 import Groq from 'groq-sdk';
 import { ChatMessage } from './config.js';
 
+// Module-level persistent memory tracker for currently active healthy Groq key index
+let activeGroqKeyIndex = 0;
+
 export const getAIReply = async (
     text: string,
     systemPrompt: string,
@@ -153,6 +156,11 @@ export const getAIReply = async (
         throw new Error('Groq API Key is missing. Please set it at /api-key.');
     }
 
+    // Ensure activeGroqKeyIndex stays within bounds
+    if (activeGroqKeyIndex >= keys.length) {
+        activeGroqKeyIndex = 0;
+    }
+
     const candidateModels = [
         groqModel,
         'openai/gpt-oss-120b',
@@ -172,24 +180,26 @@ export const getAIReply = async (
 
     let lastError: any = null;
 
-    for (let i = 0; i < keys.length; i++) {
-        const currentKey = keys[i];
+    const formattedHistory = history.map(m => ({
+        role: m.isFromMe ? ('assistant' as const) : ('user' as const),
+        content: m.content
+    }));
+
+    const messages = [
+        { role: 'system' as const, content: systemPrompt },
+        ...formattedHistory,
+        { role: 'user' as const, content: text }
+    ];
+
+    // Circular loop: try each key in sequence, wrapping around from Key #5 back to Key #1
+    for (let attempt = 0; attempt < keys.length; attempt++) {
+        const currentIdx = (activeGroqKeyIndex + attempt) % keys.length;
+        const currentKey = keys[currentIdx];
         const groq = new Groq({ apiKey: currentKey });
-
-        const formattedHistory = history.map(m => ({
-            role: m.isFromMe ? ('assistant' as const) : ('user' as const),
-            content: m.content
-        }));
-
-        const messages = [
-            { role: 'system' as const, content: systemPrompt },
-            ...formattedHistory,
-            { role: 'user' as const, content: text }
-        ];
 
         for (const modelName of modelsToTry) {
             try {
-                console.log(`[AI Engine] Attempting Groq with Key #${i + 1}, model: ${modelName}...`);
+                console.log(`[AI Engine] Attempting Groq with Key #${currentIdx + 1} (Attempt ${attempt + 1}/${keys.length}), model: ${modelName}...`);
                 const completion = await groq.chat.completions.create({
                     messages,
                     model: modelName,
@@ -199,25 +209,46 @@ export const getAIReply = async (
 
                 const reply = completion.choices[0]?.message?.content;
                 if (reply) {
+                    // Cache this healthy key as the starting point for subsequent requests!
+                    activeGroqKeyIndex = currentIdx;
                     return reply;
                 }
             } catch (err: any) {
                 const errMsg = err?.message || String(err);
-                console.warn(`[AI Engine] Groq model '${modelName}' with Key #${i + 1} failed: ${errMsg}`);
+                console.warn(`[AI Engine] Groq model '${modelName}' with Key #${currentIdx + 1} failed: ${errMsg}`);
                 lastError = err;
 
-                // If key is rate limited or invalid, break to next key
+                // If key hit rate limit (429) or invalid auth (401), break to failover to next circular key
                 if (err?.status === 429 || errMsg.includes('rate') || err?.status === 401 || errMsg.includes('invalid_api_key')) {
                     break;
                 }
-                // Otherwise (e.g. model not found / deprecated), continue trying next model
             }
         }
 
-        if (i < keys.length - 1) {
-            console.log(`[AI Engine] 🔄 Automatically failing over to Backup API Key #${i + 2}...`);
-        }
+        const nextIdx = (currentIdx + 1) % keys.length;
+        console.log(`[AI Engine] 🔄 Automatically cycling from Key #${currentIdx + 1} to Key #${nextIdx + 1}...`);
     }
 
-    throw lastError || new Error('All Groq API Keys and models failed.');
+    // Safety recovery pass: wait 3 seconds for minute window to clear and retry Key #1
+    console.warn('[AI Engine] All keys reached minute threshold. Cooling down 3s and retrying Key #1...');
+    await new Promise(res => setTimeout(res, 3000));
+
+    try {
+        const recoveryGroq = new Groq({ apiKey: keys[0] });
+        const recoveryCompletion = await recoveryGroq.chat.completions.create({
+            messages,
+            model: modelsToTry[0],
+            temperature: 0.4,
+            max_tokens: 4096,
+        });
+        const reply = recoveryCompletion.choices[0]?.message?.content;
+        if (reply) {
+            activeGroqKeyIndex = 0;
+            return reply;
+        }
+    } catch (finalErr: any) {
+        lastError = finalErr;
+    }
+
+    throw lastError || new Error('All Groq API Keys and recovery retries failed.');
 };
