@@ -352,7 +352,7 @@ const defaultConfig: AppConfig = {
     backupGroqApiKey2: '',
     backupGroqApiKey3: '',
     backupGroqApiKey4: '',
-    groqModel: 'openai/gpt-oss-120b',
+    groqModel: 'openai/gpt-oss-20b',
     geminiApiKey: '',
     openRouterApiKey: '',
     minDelay: 2,

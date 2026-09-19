@@ -163,10 +163,10 @@ export const getAIReply = async (
 
     const candidateModels = [
         groqModel,
-        'openai/gpt-oss-120b',
-        'gpt-oss-120b',
         'openai/gpt-oss-20b',
         'gpt-oss-20b',
+        'openai/gpt-oss-120b',
+        'gpt-oss-120b',
         'qwen/qwen-3.8-27b',
         'qwen-3.8-27b',
         'qwen/qwen-3.6-27b',
@@ -180,9 +180,10 @@ export const getAIReply = async (
 
     let lastError: any = null;
 
-    const formattedHistory = history.map(m => ({
+    // Keep last 4 history messages and truncate very long assistant replies to keep token count compact
+    const formattedHistory = history.slice(-4).map(m => ({
         role: m.isFromMe ? ('assistant' as const) : ('user' as const),
-        content: m.content
+        content: m.content.length > 400 ? m.content.substring(0, 400) + '...' : m.content
     }));
 
     const messages = [
@@ -204,7 +205,7 @@ export const getAIReply = async (
                     messages,
                     model: modelName,
                     temperature: 0.4,
-                    max_tokens: 4096,
+                    max_tokens: 800,
                 });
 
                 const reply = completion.choices[0]?.message?.content;
@@ -218,6 +219,12 @@ export const getAIReply = async (
                 console.warn(`[AI Engine] Groq model '${modelName}' with Key #${currentIdx + 1} failed: ${errMsg}`);
                 lastError = err;
 
+                // If prompt exceeds this specific model's TPM ceiling (413 / Request too large), try the next model on the same key!
+                if (err?.status === 413 || errMsg.includes('Request too large') || errMsg.includes('reduce your message size')) {
+                    console.log(`[AI Engine] Model '${modelName}' TPM ceiling exceeded. Trying next candidate model...`);
+                    continue;
+                }
+
                 // If key hit rate limit (429) or invalid auth (401), break to failover to next circular key
                 if (err?.status === 429 || errMsg.includes('rate') || err?.status === 401 || errMsg.includes('invalid_api_key')) {
                     break;
@@ -229,7 +236,7 @@ export const getAIReply = async (
         console.log(`[AI Engine] 🔄 Automatically cycling from Key #${currentIdx + 1} to Key #${nextIdx + 1}...`);
     }
 
-    // Safety recovery pass: wait 3 seconds for minute window to clear and retry Key #1
+    // Safety recovery pass: wait 3 seconds for minute window to clear and retry Key #1 with lightweight model
     console.warn('[AI Engine] All keys reached minute threshold. Cooling down 3s and retrying Key #1...');
     await new Promise(res => setTimeout(res, 3000));
 
@@ -237,9 +244,9 @@ export const getAIReply = async (
         const recoveryGroq = new Groq({ apiKey: keys[0] });
         const recoveryCompletion = await recoveryGroq.chat.completions.create({
             messages,
-            model: modelsToTry[0],
+            model: 'openai/gpt-oss-20b',
             temperature: 0.4,
-            max_tokens: 4096,
+            max_tokens: 800,
         });
         const reply = recoveryCompletion.choices[0]?.message?.content;
         if (reply) {

@@ -119,7 +119,7 @@ export const startWhatsApp = async (): Promise<void> => {
 
                     const history = getMessages()
                         .filter(m => m.phone === remoteJid)
-                        .slice(-10);
+                        .slice(-4);
 
                     const min = config.minDelay || 2;
                     const max = config.maxDelay || 5;
